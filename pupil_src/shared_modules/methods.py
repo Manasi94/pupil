@@ -9,10 +9,8 @@
 '''
 
 import numpy as np
-try:
-    import numexpr as ne
-except:
-    ne = None
+import numexpr as ne
+
 import cv2
 import logging
 logger = logging.getLogger(__name__)
@@ -465,13 +463,13 @@ def dist_pts_ellipse(((ex,ey),(dx,dy),angle),points):
     return unsigned euclidian distances of points to ellipse
     """
     pts = np.float64(points)
-    rx,ry = dx/2., dy/2.
-    angle = (angle/180.)*np.pi
+    rx,ry = dx*0.5, dy*0.5
+    #angle = (angle/180.)*np.pi
+    angle=np.deg2rad(angle)
     # ex,ey =ex+0.000000001,ey-0.000000001 #hack to make 0 divisions possible this is UGLY!!!
     pts = pts - np.array((ex,ey)) # move pts to ellipse appears at origin , with this we copy data -deliberatly!
-
-    M_rot = np.mat([[np.cos(angle),-np.sin(angle)],[np.sin(angle),np.cos(angle)]])
-    pts = np.array(pts*M_rot) #rotate so that ellipse axis align with coordinate system
+    #M_rot = np.mat([[np.cos(angle),-np.sin(angle)],[np.sin(angle),np.cos(angle)]])
+    #pts = np.array(pts*M_rot) #rotate so that ellipse axis align with coordinate system
     # print "rotated",pts
 
     pts /= np.array((rx,ry)) #normalize such that ellipse radii=1
@@ -479,7 +477,7 @@ def dist_pts_ellipse(((ex,ey),(dx,dy),angle),points):
     norm_mag = np.sqrt((pts*pts).sum(axis=1))
     norm_dist = abs(norm_mag-1) #distance of pt to ellipse in scaled space
     # print 'norm_mag',norm_mag
-    # print 'norm_dist',norm_dist
+    #print 'norm_dist',norm_dist
     ratio = (norm_dist)/norm_mag #scale factor to make the pts represent their dist to ellipse
     # print 'ratio',ratio
     scaled_error = np.transpose(pts.T*ratio) # per vector scalar multiplication: makeing sure that boradcasting is done right
@@ -488,12 +486,11 @@ def dist_pts_ellipse(((ex,ey),(dx,dy),angle),points):
     # print "real point",real_error
     error_mag = np.sqrt((real_error*real_error).sum(axis=1))
     # print 'real_error',error_mag
-    # print 'result:',error_mag
+    #print 'result:',error_mag
     return error_mag
 
 
-if ne:
-    def dist_pts_ellipse(((ex,ey),(dx,dy),angle),points):
+def dist_pts_ellipse_num(((ex,ey),(dx,dy),angle),points):
         """
         return unsigned euclidian distances of points to ellipse
         same as above but uses numexpr for 2x speedup
@@ -616,6 +613,7 @@ def filter_subsets(l):
 
 
 if __name__ == '__main__':
+    #import timeit
     # tst = []
     # for x in range(10):
     #   tst.append(gen_pattern_grid())
@@ -638,11 +636,24 @@ if __name__ == '__main__':
     # idx =  find_kink_and_dir_change(curvature,60)
     # print idx
     # print split_at_corner_index(pl,idx)
-    # ellipse = ((0,0),(np.sqrt(2),np.sqrt(2)),0)
-    # pts = np.array([(0,1),(.5,.5),(0,-1)])
+    ellipse = ((0,0),(20,10),0)
+    pts = (np.random.rand(1000,2))*10
+
+    from timeit import Timer
+    t = Timer(lambda: dist_pts_ellipse(ellipse,pts))
+    print "Time required for numpy"
+    print t.timeit(number=5)
+    t1 = Timer(lambda: dist_pts_ellipse_num(ellipse,pts))
+    print "Time required for numexpr"
+    print t1.timeit(number=5)
+    #pts = np.array([(0,1),(.5,.5),(0,-1),(0,0),(0,-1)])
     # # print pts.dtype
-    # print dist_pts_ellipse(ellipse,pts)
-    # print pts
+    #timeit.Timer('dist_pts_ellipse(ellipse,pts)'.format(ellipse,pts), "from __main__ import dist_pts_ellipse")
+    #timeit.timeit('dist_pts_ellipse(ellipse,pts)',setup="from __main__ import dist_pts_ellipse")
+    #start_time = timeit.default_timer()
+    #dist_pts_ellipse(ellipse,pts)
+    #print(timeit.default_timer() - start_time)
+    #print pts
     # # print test()
 
     # l = [1,2,1,0,1,0]
@@ -660,7 +671,4 @@ if __name__ == '__main__':
     # print evals
 
 
-
-
-
-
+    #print(timeit.timeit("dist_pts_ellipse(ellipse,pts)", setup="from __main__ import dist_pts_ellipse","3"))
