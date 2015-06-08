@@ -463,7 +463,7 @@ def dist_pts_ellipse(((ex,ey),(dx,dy),angle),points):
     return unsigned euclidian distances of points to ellipse
     """
     pts = np.float64(points)
-    rx,ry = dx*0.5, dy*0.5
+    rx,ry = dx/2., dy/2.
     #angle = (angle/180.)*np.pi
     angle=np.deg2rad(angle)
     # ex,ey =ex+0.000000001,ey-0.000000001 #hack to make 0 divisions possible this is UGLY!!!
@@ -630,6 +630,10 @@ if __name__ == '__main__':
     pl = np.array([[[0, 0]],[[0, 1]],[[1, 1]],[[2, 1]],[[2, 2]],[[1, 3]],[[1, 4]],[[2,4]]], dtype=np.int32)
     curvature = GetAnglesPolyline(pl,closed=0)
     print curvature
+    from timeit import Timer
+    mm = Timer(lambda:GetAnglesPolyline(pl,closed=0))
+    print "Time required for getanglespoly"
+    print mm.timeit(number=10)
     curvature = GetAnglesPolyline(pl,closed=1)
     # print curvature
     # print find_curv_disc(curvature)
@@ -656,7 +660,7 @@ if __name__ == '__main__':
     #print pts
     # # print test()
 
-    # l = [1,2,1,0,1,0]
+    l = [1,2,1,0,1,0]
     # print len(l)
     # # evals = 0
     # # r = quick_combine(l,metric)
@@ -664,9 +668,13 @@ if __name__ == '__main__':
     # # print filter_subsets(r)
     # # print evals
 
-    # evals = 0
-    # r = pruning_quick_combine(l,metric,[2])
-    # print r
+    evals = 0
+    r = pruning_quick_combine(l,metric,[2])
+    print "r"
+    print r
+    t = Timer(lambda:pruning_quick_combine(l,metric,[2]))
+    print "Time required for pruning_quick_combine"
+    print t.timeit(number=10)
     # print filter_subsets(r)
     # print evals
 
