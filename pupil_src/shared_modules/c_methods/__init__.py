@@ -41,13 +41,13 @@ else:
 
     from subprocess import check_output
     logger.debug("Compiling now.")
-    compiler_status = check_output(["make",c_flags],cwd=basedir)
+    compiler_status = check_output(["make",c_flags])
     logger.debug('Compiler status: %s'%compiler_status)
     del check_output
     logger.debug("Compiling done.")
-    dll_path = basedir + os.path.sep + 'methods.so'
 
 
+    dll_path = os.path.join(os.path.dirname(os.path.realpath(__file__)),'methods.so')
     ### C-Types binary loading
     if not os.path.isfile(dll_path):
         raise Exception("c-methods Error could not compile binary.")
@@ -112,3 +112,7 @@ if __name__ == '__main__':
     integral =  np.array(integral,dtype=np.float32)
     print ring_filter(integral)
     print eye_filter(integral)
+    from timeit import Timer
+    t = Timer(lambda: eye_filter(integral))
+    print "Time required for c"
+    print t.timeit(number=5)
