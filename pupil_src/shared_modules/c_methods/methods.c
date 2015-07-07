@@ -310,4 +310,3 @@ void ring_filter(const float *img, const int rows, const int cols, int * x_pos,i
     *width = best_h;
     *response = best_response;
     }
-
