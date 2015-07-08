@@ -73,7 +73,7 @@ else:
     logger.debug("Starting in single eye cam mode")
 
 
-if 'profiled' in sys.argv:
+if 'profiled' in sys.argv or True:
     logger.debug("Capture processes will be profiled.")
     from eye import eye_profiled as eye
     from world import world_profiled as world
@@ -87,18 +87,18 @@ class Global_Container(object):
 
 def main():
     # To assign camera by name: put string(s) in list
-    eye_cam_names = ["USB 2.0 Camera","Microsoft", "6000","Integrated Camera","HD USB Camera"]
+    #eye_cam_names = ["USB 2.0 Camera","Microsoft", "6000","Integrated Camera","HD USB Camera"]
     #world_src = ["Logitech Camera","(046d:081d)","C510","B525", "C525","C615","C920","C930e"]
-    eye_src = (eye_cam_names,0),(eye_cam_names,1) #first match for eye0 and second match for eye1
+    #eye_src = (eye_cam_names,0),(eye_cam_names,1) #first match for eye0 and second match for eye1
 
     # to assign cameras directly, using integers as demonstrated below
-    # eye_src =  4 , 5 #second arg will be ignored for monocular eye trackers
+    #eye_src =  0  #second arg will be ignored for monocular eye trackers
     #world_src = 0
 
     # to use a pre-recorded video.
     # Use a string to specify the path to your video file as demonstrated below
-    # eye_src = '/Users/mkassner/Downloads/eye.avi' , '/Users/mkassner/Downloads/eye.avi'
-    world_src =  "/home/manasi/Downloads/fiducial_markers.mkv"
+    eye_src =  '/home/manasi/pupil/pupil_src/capture/sample_data/eye0.mkv' , '' #Need to specify two strings the other string can be empty
+    world_src =  '/home/manasi/pupil/pupil_src/capture/sample_data/world.mkv' 
 
     # Camera video size in pixels (width,height)
     eye_size = (640,480)
@@ -143,3 +143,10 @@ def main():
 if __name__ == '__main__':
     freeze_support()
     main()
+    # import cProfile,subprocess,os
+    # cProfile.runctx("main()",{},locals(),"world.pstats")
+    # loc = os.path.abspath(__file__).rsplit('pupil_src', 1)
+    # gprof2dot_loc = os.path.join(loc[0], 'pupil_src', 'shared_modules','gprof2dot.py')
+    # subprocess.call("python "+gprof2dot_loc+" -f pstats world.pstats | dot -Tpng -o world_cpu_time.png", shell=True)
+    # print "created  time graph for  process. Please check out the png next to this file"
+    # exit()
