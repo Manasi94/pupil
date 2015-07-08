@@ -93,12 +93,12 @@ def main():
 
     # to assign cameras directly, using integers as demonstrated below
     # eye_src =  4 , 5 #second arg will be ignored for monocular eye trackers
-    world_src = 0
+    #world_src = 0
 
     # to use a pre-recorded video.
     # Use a string to specify the path to your video file as demonstrated below
     # eye_src = '/Users/mkassner/Downloads/eye.avi' , '/Users/mkassner/Downloads/eye.avi'
-    # world_src = "/Users/mkassner/Desktop/2014_01_21/000/world.avi"
+    world_src =  "/home/manasi/Downloads/fiducial_markers.mkv"
 
     # Camera video size in pixels (width,height)
     eye_size = (640,480)
