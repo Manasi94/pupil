@@ -27,6 +27,12 @@ from glfw import *
 from gl_utils import  draw_gl_texture,adjust_gl_view, clear_gl_screen, draw_gl_point_norm, draw_gl_polyline,basic_gl_setup,make_coord_system_norm_based,make_coord_system_pixel_based
 from template import Pupil_Detector
 
+
+#pruning cython
+from prune import pruning_quick_combine
+#ellipse_eval cython
+from ellipse_eval import ellipse_eval
+
 # gui
 from pyglui import ui
 
@@ -123,6 +129,7 @@ class Canny_Detector(Pupil_Detector):
             integral =  np.array(integral,dtype=np.float32)
             x,y,w,response = eye_filter(integral,self.coarse_filter_min,self.coarse_filter_max)
             p_r = Roi(gray_img.shape)
+            #w=width
             if w>0:
                 p_r.set((y,x,y+w,x+w))
             else:
@@ -228,8 +235,9 @@ class Canny_Detector(Pupil_Detector):
         def ellipse_true_support(e,raw_edges):
             a,b = e[1][0]/2.,e[1][1]/2. # major minor radii of candidate ellipse
             ellipse_circumference = np.pi*abs(3*(a+b)-np.sqrt(10*a*b+3*(a**2+b**2)))
-            distances = dist_pts_ellipse(e,raw_edges)
-            support_pixels = raw_edges[distances<=1.3]
+            #print raw_edges.shape
+            distances = dist_pts_ellipse(e,raw_edges)#make ctypes
+            support_pixels = raw_edges[distances<=1.3]#take pixels close to ellipse
             # support_ratio = support_pixel.shape[0]/ellipse_circumference
             return support_pixels,ellipse_circumference
 
@@ -332,7 +340,7 @@ class Canny_Detector(Pupil_Detector):
 
         # removing stubs makes combinatorial search feasable
         split_contours = [c for c in split_contours if c.shape[0]>3]
-
+        #can be gnored
         def ellipse_filter(e):
             in_center = padding < e[0][1] < pupil_img.shape[0]-padding and padding < e[0][0] < pupil_img.shape[1]-padding
             if in_center:
@@ -374,7 +382,7 @@ class Canny_Detector(Pupil_Detector):
             return new_e,new_contours
 
 
-        # finding poential candidates for ellipse seeds that describe the pupil.
+        # finding potential candidates for ellipse seeds that describe the pupil.
         strong_seed_contours = []
         weak_seed_contours = []
         for idx, c in enumerate(split_contours):
@@ -427,7 +435,7 @@ class Canny_Detector(Pupil_Detector):
             return fit_variance <= self.inital_ellipse_fit_threshhold
 
 
-        solutions = pruning_quick_combine(split_contours,ellipse_eval,seed_idx,max_evals=1000,max_depth=5)
+        solutions = pruning_quick_combine(split_contours,ellipse_eval,seed_idx,max_evals=1000,max_depth=5)#use cython
         solutions = filter_subsets(solutions)
         ratings = []
 
