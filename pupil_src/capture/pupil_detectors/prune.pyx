@@ -1,5 +1,7 @@
 import  numpy as np
 cimport numpy as np
+@cython.boundscheck(False)
+@cython.wraparound(False)
 def pruning_quick_combine(l,fn,seed_idx=None,max_evals=1e20,max_depth=5):
     """
     l is a list of object to quick_combine.

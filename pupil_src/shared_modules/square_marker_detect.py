@@ -39,10 +39,12 @@ def decode(square_img,grid):
     #look only at the center point of each grid cell
     msg = square_img[start::step,start::step]
     # border is: first row - last row and  first column - last column
+    # print "hi"
     if msg[0::grid-1,:].any() or msg[:,0::grid-1].any():
         # logger.debug("This is not a valid marker: \n %s" %msg)
         return None
     # strip border to get the message
+    # print "bye"
     msg = msg[1:-1,1:-1]/255
 
     # out first bit is encoded in the orientation corners of the marker:
@@ -300,7 +302,7 @@ def detect_markers_robust(gray_img,grid_size,prev_markers,min_marker_perimeter=4
 
 
 def bench():
-    cap = cv2.VideoCapture('/Users/mkassner/Pupil/datasets/markers/many.mov')
+    cap = cv2.VideoCapture('/home/manasi/Downloads/fiducial_markers.mkv')
     status,img = cap.read()
     markers = []
     while status:
@@ -312,9 +314,17 @@ def bench():
 
 
 if __name__ == '__main__':
-    import cProfile,subprocess,os
-    cProfile.runctx("bench()",{},locals(),"world.pstats")
-    loc = os.path.abspath(__file__).rsplit('pupil_src', 1)
-    gprof2dot_loc = os.path.join(loc[0], 'pupil_src', 'shared_modules','gprof2dot.py')
-    subprocess.call("python "+gprof2dot_loc+" -f pstats world.pstats | dot -Tpng -o world_cpu_time.png", shell=True)
-    print "created  time graph for  process. Please check out the png next to this file"
+    # import cProfile,subprocess,os
+    # cProfile.runctx("bench()",{},locals(),"world.pstats")
+    # loc = os.path.abspath(__file__).rsplit('pupil_src', 1)
+    # gprof2dot_loc = os.path.join(loc[0], 'pupil_src', 'shared_modules','gprof2dot.py')
+    # subprocess.call("python "+gprof2dot_loc+" -f pstats world.pstats | dot -Tpng -o world_cpu_time.png", shell=True)
+    # print "created  time graph for  process. Please check out the png next to this file"
+    #
+    cap = cv2.VideoCapture('/home/manasi/Downloads/fiducial_markers.mkv')
+    status,img = cap.read()
+    from timeit import Timer
+    gray_img = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
+    t = Timer(lambda: detect_markers_robust(gray_img,5,[],true_detect_every_frame=1))
+    print "Time required for python"
+    print t.timeit(number=100)
